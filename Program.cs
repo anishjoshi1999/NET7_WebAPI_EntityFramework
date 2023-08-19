@@ -1,3 +1,7 @@
+global using NET7_WebAPI_EntityFramework.Models;
+using NET7_WebAPI_EntityFramework.Data;
+using NET7_WebAPI_EntityFramework.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +10,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+//Register your service
+builder.Services.AddScoped<ISuperHeroService, SuperHeroService>();
+builder.Services.AddDbContext<DataContext>();
 
 
 var app = builder.Build();

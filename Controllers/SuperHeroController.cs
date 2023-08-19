@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NET7_WebAPI_EntityFramework.Models;
-
+using NET7_WebAPI_EntityFramework.Services;
 
 namespace NET7_WebAPI_EntityFramework.Controllers
 {
@@ -8,64 +7,52 @@ namespace NET7_WebAPI_EntityFramework.Controllers
     [ApiController]
     public class SuperHeroController : ControllerBase
     {
-        private static List<SuperHero> superHeroes = new List<SuperHero>
-            {
-                new SuperHero
-                {
-                    Id = 1,
-                    Name = "Spider-Man",
-                    FirstName = "Peter",
-                    LastName = "Parker",
-                    Place = "New York City"
-                },
-                new SuperHero
-                {
-                    Id = 2,
-                    Name = "Wonder Woman",
-                    FirstName = "Diana",
-                    LastName = "Prince",
-                    Place = "Themyscira"
-                },
-                new SuperHero
-                {
-                    Id = 3,
-                    Name = "Iron Man",
-                    FirstName = "Tony",
-                    LastName = "Stark",
-                    Place = "Malibu"
-                },
-                new SuperHero
-                {
-                    Id = 4,
-                    Name = "Hulk",
-                    FirstName = "Bruce",
-                    LastName = "Banner",
-                    Place = "New york"
-                },
-                new SuperHero
-                {
-                    Id = 5,
-                    Name = "Black Widow",
-                    FirstName = "Natasha",
-                    LastName = "Romanoff",
-                    Place = "Russia"
-                }
-            };
-        [HttpGet]
-        public async Task<ActionResult<List<SuperHero>>> GetAllHeroes() // Corrected the method name.
+        private readonly ISuperHeroService _superHeroService;
+
+        public SuperHeroController(ISuperHeroService superHeroService)
         {
-            return Ok(superHeroes); 
+            _superHeroService = superHeroService;
+        }
+        [HttpGet]
+        public async Task<ActionResult<List<SuperHero>>> GetAllHeroes()
+        {
+          return await _superHeroService.GetAllHeroes();
         }
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<List<SuperHero>>> GetSingleHero(int id) // Corrected the method name.
+        public async Task<ActionResult<SuperHero>> GetSingleHero(int id)
         {
-            var hero = superHeroes.Find(x => x.Id == id);
-            if(hero == null)
-            {
-                return NotFound("Sorry, but this hero doesn't exist");
-            }
+            var result = await _superHeroService.GetSingleHero(id);
+            if (result is null)
+                return NotFound("Hero not found");
+            return Ok(result);
+        }
+        [HttpPost]
+        public async Task<ActionResult<List<SuperHero>>> AddHero([FromBody]SuperHero hero) 
+        {
+            var result = await _superHeroService.AddHero(hero);
+            if (result is null)
+                return NotFound("Hero not found");
             return Ok(hero);
+        }
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<ActionResult<List<SuperHero>>> UpdateHero(int id,SuperHero request) 
+        {
+          var result = await _superHeroService.UpdateHero(id, request);
+            if (result is null)
+                return NotFound("Hero not found");
+            return Ok(result);
+
+        }
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<ActionResult<List<SuperHero>>> DeleteHero(int id)
+        {
+          var result = await _superHeroService.DeleteHero(id);
+            if (result is null)
+                return NotFound("Hero not found");
+            return Ok(result);
         }
     }
 }
